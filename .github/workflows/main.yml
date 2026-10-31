@@ -30,7 +30,7 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v5
         with:
-          name: app-build
+          name: wrong-name
           path: dist/
 
       - name: Check downloaded file
