@@ -1,6 +1,9 @@
-name: CI
 
-on: 
+name: Artifact Transfer Practice
+
+on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -8,14 +11,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: checkout code
-        uses: actions/checkout@v4
+      - name: Create binary
+        run: |
+          mkdir -p dist
+          echo "This is my build output" > dist/app.bin
 
-  test:
-    runs-on: ubuntu-latest
+      - name: Upload artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: app-build
+          path: dist/
+
+  deploy:
     needs: build
+    runs-on: ubuntu-latest
 
     steps:
-      - name: run test
-        run: echo "running tests..." 
-      
+      - name: Download artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: app-build
+          path: dist/
+
+      - name: Check downloaded file
+        run: |
+          ls -la dist/
+          cat dist/app.bin
