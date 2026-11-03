@@ -22,7 +22,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v5
         with:
-          name: app-build
+          name: production-build
           path: |
             dist/**
             !dist/debug.log
