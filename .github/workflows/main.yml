@@ -11,16 +11,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Create binary
+      - name: Create sample files
         run: |
           mkdir -p dist
-          echo "This is my build output" > dist/app.bin
+          echo "Application binary" > dist/app.bin
+          echo "Debug information" > dist/debug.log
+          echo "Temporary data" > dist/temp.txt
+          echo "Configuration" > dist/config.json
 
       - name: Upload artifact
         uses: actions/upload-artifact@v5
         with:
           name: app-build
-          path: dist/
+          path: |
+            dist/**
+            !dist/debug.log
+            !dist/temp.txt
 
   deploy:
     needs: build
@@ -30,10 +36,10 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v5
         with:
-          name: wrong-name
-          path: dist/
+          name: production-build
+          path: downloaded/
 
       - name: Check downloaded file
         run: |
-          ls -la dist/
-          cat dist/app.bin
+          echo "Files inside downloaded artifact:"
+          find downloaded -type f
