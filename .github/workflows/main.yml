@@ -1,45 +1,27 @@
 
-name: Artifact Transfer Practice
+name: Run Tests
 
 on:
-  push:
+  pull_request:
     branches: [main]
-  workflow_dispatch:
+    types: [closed]
 
 jobs:
-  build:
+  test:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
-      - name: Create sample files
-        run: |
-          mkdir -p dist
-          echo "Application binary" > dist/app.bin
-          echo "Debug information" > dist/debug.log
-          echo "Temporary data" > dist/temp.txt
-          echo "Configuration" > dist/config.json
+      - name: Check out code
+        uses: actions/checkout@v4
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          name: production-build
-          path: |
-            dist/**
-            !dist/debug.log
-            !dist/temp.txt
+          python-version: "3.x"
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
+      - name: Install dependencies
+        run: pip install -r requirements.txt
 
-    steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v5
-        with:
-          name: production-build
-          path: downloaded/
-
-      - name: Check downloaded file
-        run: |
-          echo "Files inside downloaded artifact:"
-          find downloaded -type f
+      - name: Run tests
+        run: pytest -q
