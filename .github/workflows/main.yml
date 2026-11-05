@@ -7,7 +7,7 @@ on:
     branches: [dev, temp]
   pull_request:
     branches: [main]
-    types: [closed]
+    types: [opened, synchronize, reopened, closed]
 
 permissions:
   actions: read
@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   test:
-    if: github.event_name == 'push' || github.event.pull_request.merged == true
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.action != 'closed' || github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
@@ -41,7 +41,7 @@ jobs:
           path: reports/coverage.xml
 
   codeql:
-    if: github.event_name == 'push' || github.event.pull_request.merged == true
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.action != 'closed' || github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
@@ -59,7 +59,7 @@ jobs:
           category: "security"
 
   sonarqube:
-    if: github.event_name == 'push' || github.event.pull_request.merged == true
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.action != 'closed' || github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
@@ -70,6 +70,10 @@ jobs:
 
       - name: Run SonarQube scan
         uses: SonarSource/sonarqube-scan-action@v6
+        with:
+          args: >
+            -Dsonar.qualitygate.wait=true
+            -Dsonar.qualitygate.timeout=300
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
