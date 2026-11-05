@@ -2,6 +2,8 @@
 name: Run Tests
 
 on:
+  push:
+    branches: [dev, temp]
   pull_request:
     branches: [main]
     types: [closed]
@@ -13,7 +15,7 @@ permissions:
 
 jobs:
   test:
-    if: github.event.pull_request.merged == true
+    if: github.event_name == 'push' || github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
@@ -38,7 +40,7 @@ jobs:
           path: reports/coverage.xml
 
   codeql:
-    if: github.event.pull_request.merged == true
+    if: github.event_name == 'push' || github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
